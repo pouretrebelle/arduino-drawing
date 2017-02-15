@@ -1,0 +1,17 @@
+{
+  "name": "arduino-drawing",
+  "version": "1.0.0",
+  "description": "A javascript drawing using a magnetometer",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": "https://github.com/pouretrebelle/arduino-drawing",
+  "author": "Charlot Dann",
+  "license": "ISC",
+  "dependencies": {
+    "npm": "^4.2.0",
+    "serialport": "^4.0.7"
+  }
+}
