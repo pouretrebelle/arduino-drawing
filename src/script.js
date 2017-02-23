@@ -21,6 +21,7 @@ socket.on('data', function (data) {
 });
 
 let canvas, c;
+let origin = {x: 0, y: 0, z: 0};
 let target = {x: 0, y: 0, z: 0};
 let current = {x: 0, y: 0, z: 0};
 let active = false;
@@ -59,6 +60,9 @@ function reset() {
     colours.push('hsl('+h+', 100%, '+l+'%)');
   }
   scheme = chroma.scale(colours);
+
+  // set the origin point
+  origin = target;
 }
 
 function update() {
@@ -75,10 +79,12 @@ function draw() {
   if (active) {
     c.beginPath();
 
-    let radius = Math.abs(current.z).map(0, 200, 5, 10);
-    let through = clamp(current.z.map(-200, 200, 0, 1), 0, 1);
+    let radius = Math.abs(current.z-origin.z).map(0, 200, 5, 10) * scalar;
+    let through = clamp((current.z-origin.z).map(-200, 200, 0, 1), 0, 1);
+    let x = (current.x - origin.x) * scalar;
+    let y = (current.y - origin.y) * scalar;
     c.fillStyle = scheme(through);
-    c.arc(current.x*scalar, current.y*scalar, radius*scalar, 0, Math.PI*2);
+    c.arc(x, y, radius, 0, Math.PI*2);
 
     c.fill();
   }
