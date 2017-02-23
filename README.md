@@ -1,6 +1,8 @@
 # Arduino Drawing
 
-Use a magnet like a 3D stylus, in theory.
+Using an Arduino mounted with a magnetometer, node.js and socket.io, this project uses disturbances in the magnetic field to draw.
+
+[Watch the demo video](https://www.youtube.com/watch?v=oeN270w83Cw).
 
 ## Setup
 
