@@ -1,4 +1,4 @@
-var socket = io.connect('http://localhost:7000');
+let socket = io.connect('http://localhost:7000');
 
 socket.on('connected', function(){
   console.log('Socket Connected');
@@ -7,45 +7,132 @@ socket.on('disconnect', function(){
   console.log('Socket Disconnected');
 });
 socket.on('data', function (data) {
-  // console.log(data);
+  data = JSON.parse(data);
+  if (data.magnetic) {
+    target = data.magnetic;
+    // console.log(data.acceleration);
+  }
+  if (data.active !== undefined) {
+    active = data.active;
+    if (active == true) {
+      reset();
+    }
+  }
 });
 
-
-
 let canvas, c;
+let target = {x: 0, y: 0, z: 0};
+let current = {x: 0, y: 0, z: 0};
+let active = false;
+
+const lerpFactor = 0.1;
+let scheme = chroma.scale();
+
 const screenWidth = window.innerWidth;
 const screenHeight = window.innerHeight;
 const screenMin = screenWidth < screenHeight ? screenWidth : screenHeight;
+const scalar = screenMin * 0.003;
 
-const setup = function() {
+function setup() {
   frameRate = 60;
   setupCanvas();
   draw();
 };
 
-const setupCanvas = function() {
+function setupCanvas() {
   canvas = document.createElement('canvas');
   c = canvas.getContext('2d');
   canvas.width = screenWidth;
   canvas.height = screenHeight;
   document.body.appendChild(canvas);
+  c.translate(screenWidth/2, screenHeight/2);
 };
 
-const update = function() {
+function reset() {
+  c.clearRect(-screenWidth/2, -screenHeight/2, screenWidth, screenHeight);
 
+  // new colour scheme
+  let colours = [];
+  for (let i = 0; i < randomInteger(2, 5); i++) {
+    let h = hues[randomInteger(0, hues.length-1)];
+    let l = randomInteger(50, 80);
+    colours.push('hsl('+h+', 100%, '+l+'%)');
+  }
+  scheme = chroma.scale(colours);
 }
 
-const draw = function() {
+function update() {
+  let dir = new Victor(target.x-current.x, target.y-current.y).horizontalAngle();
+  let velocity = new Victor(3, 0).rotate(dir);
+
+  current.x += velocity.x;
+  current.y += velocity.y;
+
+  current.z = current.z*(1-lerpFactor) + target.z*lerpFactor;
+}
+
+function draw() {
+  if (active) {
+    c.beginPath();
+
+    let radius = Math.abs(current.z).map(0, 200, 5, 10);
+    let through = clamp(current.z.map(-200, 200, 0, 1), 0, 1);
+    c.fillStyle = scheme(through);
+    c.arc(current.x*scalar, current.y*scalar, radius*scalar, 0, Math.PI*2);
+
+    c.fill();
+  }
 };
 
 
+var hues = [
+  2,
+  10,
+  17,
+  37,
+  40,
+  63,
+  67,
+  72,
+  74,
+  148,
+  152,
+  156,
+  160,
+  170,
+  175,
+  189,
+  194,
+  260,
+  270,
+  280,
+  288,
+  302,
+  320,
+  330,
+  340,
+  350
+];
 
+function randomInteger(min, max) {
+	if(max === undefined) {
+		max = min;
+		min = 0;
+	}
+	return Math.floor(Math.random() * (max+1-min)) + min;
+}
 
-
-
-
-
-
+function clamp(value, min, max) {
+  if (max < min) {
+    var temp = min;
+    min = max;
+    max = temp;
+  }
+  return Math.max(min, Math.min(value, max));
+};
+Number.prototype.map = function (in_min, in_max, out_min, out_max) {
+  return (this - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
 
 // IGNORE FROM HERE
 //=====================================
@@ -63,13 +150,6 @@ function cjsloop() {
   }
   requestAnimationFrame(cjsloop);
 };
-
-// requestAnimationFrame
-// http://paulirish.com/2011/requestanimationframe-for-smart-animating/
-// http://my.opera.com/emoller/blog/2011/12/20/requestanimationframe-for-smart-er-animating
-
-// requestAnimationFrame polyfill by Erik MÃ¶ller
-// fixes from Paul Irish and Tino Zijdel
 
 (function() {
   var lastTime = 0;
