@@ -81,7 +81,7 @@ function draw() {
 
     let radius = Math.abs(current.z-origin.z).map(0, 200, 5, 10) * scalar;
     let through = clamp((current.z-origin.z).map(-200, 200, 0, 1), 0, 1);
-    let x = (current.x - origin.x) * scalar;
+    let x = -(current.x - origin.x) * scalar;
     let y = (current.y - origin.y) * scalar;
     c.fillStyle = scheme(through);
     c.arc(x, y, radius, 0, Math.PI*2);
