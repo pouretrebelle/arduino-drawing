@@ -6,13 +6,15 @@ Using an Arduino mounted with a magnetometer, node.js and socket.io, this projec
 
 ## Setup
 
+Make sure the Arduino is plugged in and the sketch is loaded.
+
 ```
 cd src
 npm install
 npm start
 ```
 
-Make sure the Arduino is plugged in and the sketch is loaded, then go to [localhost:7000](http://localhost:7000).
+Then go to [localhost:7000](http://localhost:7000).
 
 ## Screenshots
 
