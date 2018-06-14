@@ -38,6 +38,19 @@ const canvasWidth = 5000;
 const canvasHeight = 5000;
 const scalar = canvasWidth * 0.003;
 
+const loop = () => {
+  update();
+  draw();
+  window.requestAnimationFrame(loop);
+};
+
+const init = () => {
+  setup();
+  window.requestAnimationFrame(loop);
+};
+
+window.addEventListener('load', init);
+
 function setup() {
   frameRate = 60;
   setupCanvas();
@@ -145,57 +158,3 @@ function clamp(value, min, max) {
 Number.prototype.map = function(in_min, in_max, out_min, out_max) {
   return ((this - in_min) * (out_max - out_min)) / (in_max - in_min) + out_min;
 };
-
-// IGNORE FROM HERE
-//=====================================
-
-var frameRate = 60,
-  lastUpdate = Date.now();
-
-function cjsloop() {
-  var now = Date.now();
-  var elapsedMils = now - lastUpdate;
-  if (
-    typeof window.draw == 'function' &&
-    elapsedMils >= 1000 / window.frameRate
-  ) {
-    window.draw();
-    window.update();
-    lastUpdate = now - (elapsedMils % (1000 / window.frameRate));
-  }
-  requestAnimationFrame(cjsloop);
-}
-
-(function() {
-  var lastTime = 0;
-  var vendors = ['ms', 'moz', 'webkit', 'o'];
-  for (var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
-    window.requestAnimationFrame = window[vendors[x] + 'RequestAnimationFrame'];
-    window.cancelAnimationFrame =
-      window[vendors[x] + 'CancelAnimationFrame'] ||
-      window[vendors[x] + 'CancelRequestAnimationFrame'];
-  }
-
-  if (!window.requestAnimationFrame)
-    window.requestAnimationFrame = function(callback, element) {
-      var currTime = new Date().getTime();
-      var timeToCall = Math.max(0, 16 - (currTime - lastTime));
-      var id = window.setTimeout(function() {
-        callback(currTime + timeToCall);
-      }, timeToCall);
-      lastTime = currTime + timeToCall;
-      return id;
-    };
-
-  if (!window.cancelAnimationFrame)
-    window.cancelAnimationFrame = function(id) {
-      clearTimeout(id);
-    };
-})();
-
-window.addEventListener('load', init);
-
-function init() {
-  if (typeof window.setup == 'function') window.setup();
-  cjsloop();
-}
