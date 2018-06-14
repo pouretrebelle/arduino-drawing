@@ -89,11 +89,8 @@ function reset() {
 }
 
 function update() {
-  let dir = new Victor(
-    target.x - current.x,
-    target.y - current.y
-  ).horizontalAngle();
-  let velocity = new Victor(3, 0).rotate(dir);
+  let dir = new Vector2(target.x - current.x, target.y - current.y).angle();
+  let velocity = new Vector2(3, 0).rotate(dir);
 
   current.x += velocity.x;
   current.y += velocity.y;
