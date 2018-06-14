@@ -78,6 +78,12 @@ function reset() {
   }
   scheme = chroma.scale(colours);
 
+  document.getElementById('scheme').style.background = `
+    linear-gradient(
+      to bottom,
+      ${scheme.colors(20).join(', ')}
+    )`;
+
   // set the origin point
   origin = target;
 }
