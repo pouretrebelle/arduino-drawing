@@ -22,6 +22,7 @@ socket.on('data', function(data) {
 
 let canvas, c;
 let origin = { x: 0, y: 0, z: 0 };
+let smoothTarget = { x: 0, y: 0, z: 0 };
 let target = { x: 0, y: 0, z: 0 };
 let current = { x: 0, y: 0, z: 0 };
 let active = false;
@@ -36,7 +37,8 @@ let screenMin = screenWidth < screenHeight ? screenWidth : screenHeight;
 
 const canvasWidth = 5000;
 const canvasHeight = 5000;
-const scalar = canvasWidth * 0.003;
+const scalar = canvasWidth * 0.005;
+const maxSpeed = scalar * 0.1;
 
 const loop = () => {
   update();
@@ -85,12 +87,24 @@ function reset() {
     )`;
 
   // set the origin point
-  origin = target;
+  origin = Object.assign({}, target);
+  smoothTarget = Object.assign({}, target);
+  current = Object.assign({}, target);
 }
 
 function update() {
-  let dir = new Vector2(target.x - current.x, target.y - current.y).angle();
-  let velocity = new Vector2(3, 0).rotate(dir);
+  // add 1% of target to smoothTarget
+  ['x', 'y', 'z'].forEach(axis => {
+    smoothTarget[axis] += (target[axis] - smoothTarget[axis]) * 0.01;
+  });
+
+  let diff = new Vector2(
+    smoothTarget.x - current.x,
+    smoothTarget.y - current.y
+  );
+  let velocity = new Vector2(maxSpeed, 0).rotate(diff.angle());
+  if (diff.magnitude() < maxSpeed)
+    velocity.normalise().multiplyEq(diff.magnitude());
 
   current.x += velocity.x;
   current.y += velocity.y;
